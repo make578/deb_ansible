@@ -1,0 +1,22 @@
+---
+- name: Install Packages
+  apt: 
+    name: xdg-user-dirs 
+    state: latest 
+    update_cache: true
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+- name: Update User Directories
+  command: "xdg-user-dirs-update"
+
+- shell: curl -s http://ifconfig.io/country_code | tr '[:upper:]' '[:lower:]'
+  register: region
+
+- name: Updating Keyboard Setting
+  template:
+    src: keyboard.j2
+    dest: /etc/default/keyboard
+

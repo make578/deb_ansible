@@ -1,0 +1,58 @@
+---
+- name: Install Packages
+  apt: 
+    pkg:
+      - python2.7 
+      - python2.7-dev
+      - python-dev 
+      - python-setuptools
+      - python-pip
+      - python3-pip
+      - python3
+      - python3-dev
+    state: present
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+
+- name: Python startup config
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: pythonstartup.j2
+    dest: /home/{{ username }}/.pythonstartup
+
+#- name: Install pip packages
+#  pip:
+#    name: "{{ item }}"
+##    version: 0.11
+#  with_items:
+#    - pip
+#    - xlrd
+#    - google-api-python-client
+#    - shodan
+#    - pytz 
+#    - python-qt 
+#    - flickrapi 
+#    - python-instagram 
+#    - yapsy 
+#    - tweepy 
+#    - google-api-python-client 
+#    - python-dateutil 
+#    - configobj 
+#    - dominate 
+#    - github3.py
+#    - editorconfig
+#    - selenium
+#  register: results
+#  until: results is success
+#  retries: 10
+#  delay: 3
+
+- name: Create Python Environment directory
+  file:
+    path: /opt/python/venv/
+    state: directory
+    recurse: yes

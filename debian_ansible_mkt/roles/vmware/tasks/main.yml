@@ -1,0 +1,64 @@
+---
+# This playbook contains network plays to disable IPv6, rename interface to eth0 and configure firewall rules for openssh.
+
+- shell: uname -r
+  register: kernel
+
+- name: Install Linux Headers
+  become: yes
+  become_user: root
+  command: apt -y -qq install linux-headers-{{ item }}
+  with_items: "{{ kernel.stdout_lines }}"
+  register: apt_res
+  until: apt_res is success
+  retries: 10
+  delay: 3
+  ignore_errors: yes
+  
+- name: Download VMWare
+  get_url:
+    url: https://www.vmware.com/go/getworkstation-linux
+    dest: /tmp/vmware-workstation.bundle
+    mode: 0755
+
+- name: Install VMWare
+  command: "{{item}}"
+  with_items:
+     - /tmp/vmware-workstation.bundle --console --required --eulas-agreed --set-setting vmware-workstation serialNumber {{ vm_key }} 
+
+- name: Change kernel paging
+  shell: "{{ item }}"
+  with_items: 
+    - echo never > /sys/kernel/mm/transparent_hugepage/enabled 
+    - echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+- name: Configure kernal paging on boot
+  template:
+    src: rc.local.j2
+    dest: /etc/rc.local
+    mode: 0755
+
+- name: Cleanup VMWare
+  file:
+    path: /tmp/vmware-workstation.bundle
+    state: absent
+
+#- name: Configure vmnet1 DHCP
+#  template: src=etc_vmware_vmnet1_dhcpd_dhcpd.conf dest=/etc/vmware/vmnet1/dhcpd/dhcpd.conf
+#  tags: vmware-network
+#
+#- name: Configure vmnet8 NAT
+#  template: src=etc_vmware_vmnet8_nat_nat.conf dest=/etc/vmware/vmnet8/nat/nat.conf
+#  tags: vmware-network
+#
+#- name: Configure vmnet8 DHCP
+#  template: src=etc_vmware_vmnet8_dhcpd_dhcpd.conf dest=/etc/vmware/vmnet8/dhcpd/dhcpd.conf
+#  tags: vmware-network
+#
+#- name: Configure VMware network map
+#  template: src=etc_vmware_netmap.conf dest=/etc/vmware/netmap.conf
+#  tags: vmware-network
+#
+#- name: Configure VMware networking
+#  template: src=etc_vmware_networking dest=/etc/vmware/networking
+#  tags: vmware-network

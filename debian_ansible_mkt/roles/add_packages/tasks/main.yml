@@ -1,0 +1,179 @@
+---
+- name: Install Packages
+  become: yes
+  become_user: root
+  apt:
+    pkg:
+      - libappindicator3-1
+      - libqt5qml5
+      - libqt5quick5
+      - libqt5webkit5
+      - qml-module-qtquick2
+      - qml-module-qtquick-controls
+      - qml-module-qtquick-dialogs
+      - qml-module-qtquick-window2
+      - qml-module-qtquick-layouts
+      - ca-certificates 
+      - cherrytree
+      - keepass2
+      - evolution
+      - evolution-common
+      - evolution-ews
+      - shutter
+      - htop
+      - thunderbird  
+    state: present
+
+- name: Install Debian Specific Packages
+  become: yes
+  become_user: root
+  apt:
+    pkg:
+      - libssl1.0.2
+  when: ansible_distribution == 'Debian'
+
+#- name: Install Ubuntu Specific Packages
+#  become: yes
+#  become_user: root
+#  apt:
+#    pkg:
+#      - firefox
+#  when: ansible_distribution == 'Ubuntu'
+
+# Install Sublime Text 3
+- shell: wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+
+- name: Add Sublime Text Source
+  template:
+    src: sublime-text.list.j2
+    dest: /etc/apt/sources.list.d/sublime-text.list
+
+- name: Install Sublime Text Packages
+  become: yes
+  become_user: root
+  apt: name=sublime-text state=latest update_cache=true
+  register: apt_res
+  until: apt_res is success
+  retries: 10
+  delay: 3
+
+# Update JAVA
+- name: Add Oracle Java Source
+  template:
+    src: java_source.j2
+    dest: /etc/apt/sources.list.d/webupd8team-java.list
+
+- name: Add apt key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: EEA14886
+    state: present
+#apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+
+- name: debian | set license as accepted
+  debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+- name: Install Oracle Java
+  become: yes
+  become_user: root
+  apt: name=oracle-java8-installer state=latest update_cache=true
+  register: apt_res
+  until: apt_res is success
+  retries: 10
+  delay: 3
+  
+- name: Set Oracle Java as Default
+  become: yes
+  become_user: root
+  apt: name=oracle-java8-set-default state=latest update_cache=true
+  register: apt_res
+  until: apt_res is success
+  retries: 10
+  delay: 3
+
+- name: Configure Java for WM use
+  template:
+    src: jre.sh.j2
+    dest: /etc/profile.d/jre.sh
+    mode: 0755
+
+# Install Chrome
+- name: Download Chrome
+  become: yes
+  become_user: "{{ username }}"
+  get_url: 
+    url="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+    dest="/home/{{ username }}/Downloads/google-chrome-stable_current_amd64.deb"
+
+- name: Install Chrome
+  become: yes
+  become_user: root
+  apt: deb="/home/{{ username }}/Downloads/google-chrome-stable_current_amd64.deb"
+
+# Install Dropbox
+- name: Download Dropbox
+  become: yes
+  become_user: "{{ username }}"
+  get_url: 
+    url="https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
+    dest="/home/{{ username }}/Downloads/dropbox.deb"
+
+- name: Install Dropbox
+  become: yes
+  become_user: root
+  apt: deb="/home/{{ username }}/Downloads/dropbox.deb"
+
+# Install Teamviewer
+- name: Download Teamviewer
+  become: yes
+  become_user: "{{ username }}"
+  get_url: 
+    url="https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
+    dest="/home/{{ username }}/Downloads/teamviewer_amd64.deb"
+
+- name: Install Teamviewer
+  become: yes
+  become_user: root
+  apt: deb="/home/{{ username }}/Downloads/teamviewer_amd64.deb"
+
+# Install Microsoft Teams - Hardcoded version 0.1.9
+- name: Download MSTeams
+  become: yes
+  become_user: "{{ username }}"
+  get_url: 
+    url="https://github.com/IsmaelMartinez/teams-for-linux/releases/download/v0.1.9/teams-for-linux_0.1.9_amd64.deb"
+    dest="/home/{{ username }}/Downloads/teams-for-linux_0.1.9_amd64.deb"
+
+- name: Install MSTeam
+  become: yes
+  become_user: root
+  apt: deb="/home/{{ username }}/Downloads/teams-for-linux_0.1.9_amd64.deb"
+
+
+# Install Microsoft OneNote - Hardcoded version
+- name: Download Microsoft OneNote
+  get_url: 
+    url: "https://github.com/patrikx3/onenote/releases/download/2018.9.5-5/p3x-onenote-2018.9.5-5-x86_64.AppImage"
+    dest: "/opt/p3x-onenote"
+    mode: 0755
+
+- name: Copy over icon
+  copy:
+    src: onenote.svg
+    dest: /opt/onenote.svg
+    mode: 0664
+
+#- name: Add Menu Shortcut
+#  become: yes
+#  become_user: "{{ username }}"
+#  template:
+#    src: onenote.desktop.j2
+#    dest: /home/{{ username }}/.local/share/applications/onenote.desktop
+
+# No longer supported, export csv and import to GPG
+#- name: Add LastPass Pocket
+#  unarchive:
+#    remote_src: yes
+#    src: https://download.cloud.lastpass.com/pocket/pocket_x64.tar.bz2
+#    dest: /tmp/
+#    mode: 0766

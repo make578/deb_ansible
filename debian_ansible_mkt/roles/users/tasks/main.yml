@@ -1,0 +1,40 @@
+---
+# This playbook contains network plays to configure ssh, user ssh config, and autossh.
+
+- name: Edit user
+  user:
+    name: "{{ username }}"
+    groups: sudo
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+#    shell: /bin/zsh
+
+#- name: Harden user password
+#  become: yes
+#  become_user: root
+#  shell: usermod -p $(echo '{{ username_pass }}' | openssl passwd -1 -stdin) {{ username }}
+
+- name: Create autostart directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path: /home/{{ username }}/.config/autostart/
+    state: directory
+    recurse: yes
+
+# Create Application AutoStarts
+- name: Dropbox autostart
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: dropbox.desktop.j2
+    dest: /home/{{ username }}/.config/autostart/dropbox.desktop
+
+- name: Shutter autostart
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: shutter.desktop.j2
+    dest: /home/{{ username }}/.config/autostart/shutter.desktop
+

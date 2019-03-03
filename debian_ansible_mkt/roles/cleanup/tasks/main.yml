@@ -1,0 +1,50 @@
+---
+- name: clean up
+  become: yes
+  become_user: root
+  shell: rm -rf {{ item }}
+  with_items: 
+    - /tmp/*
+    - /home/{{ username }}/Downloads/*
+
+- name: Remove Gnome
+  become: yes
+  become_user: root
+  apt:
+    pkg:
+      - nautilus 
+      - gnome-power-manager 
+      - gnome-screensaver 
+      - gnome-bluetooth 
+      - gnome-shell-common 
+      - compiz 
+      - unity 
+      - hud 
+      - zeitgeist 
+      - python-zeitgeist 
+      - activity-log-manager-common 
+      - gnome-control-center 
+      - gnome-screenshot 
+      - gnome-termina* 
+      - gnome-pane* 
+      - gnome-applet* 
+      - gnome-desktop* 
+      - gnome-sessio* 
+      - gnome-user* 
+      - compiz* 
+      - unity* 
+      - zeitgeist* 
+      - libzeitgeist* 
+      - overlay-scrollba*
+      - xscreensaver*
+    state: absent
+
+- name: Install Packages
+  become: yes
+  become_user: root
+  apt:
+    pkg:
+      - evolution
+      - evolution-common
+      - evolution-ews
+    state: present

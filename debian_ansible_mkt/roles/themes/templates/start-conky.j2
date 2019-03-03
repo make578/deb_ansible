@@ -1,0 +1,7 @@
+#!/bin/bash
+
+[[ -z ${DISPLAY} ]] && export DISPLAY=:0.0
+
+/usr/bin/timeout 10 /usr/bin/killall -9 -q -w conky
+/bin/sleep 20s
+/usr/bin/conky &

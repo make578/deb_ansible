@@ -1,0 +1,71 @@
+---
+# Configure Debian Desktop
+
+# su
+# echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" >> /etc/apt/sources.list.d/ansible.list
+# apt-get install -y dirmngr
+# apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+# apt-get update && apt-get install -y ansible
+
+# ansible-playbook site.yml --ask-become-pass --become-method=su --extra-vars "user=joseph"
+
+# after playbook execution, you may need to run './.config/xfce4/XFCE-panel.sh'
+
+- name: Configure Debian
+  hosts: "127.0.0.1"
+  connection: local
+#  become: yes
+#  become_user: root
+  vars:
+    # Enable/Disable NTP
+    ntp_enabled: true
+    # Etc/GMT vs Etc/UTC vs UTC vs Europe/London vs America/New_York
+    ntp_timezone: "Europe/Berlin"
+    # Desktop Manager 
+    # Changing the desktop manager has no warranties, Not all environments have been tested
+    desktop: "MATE" # (Gnome, XFCE, KDE, KDE-Plasma, LXDE, Cinnamon, MATE)
+    username: "{{ user | default('px') }}"
+    vm_key: "{{ vmware_key | default('00000-00000-00000-00000-00000') }}"
+
+#  vars_prompt:
+#    - name: "user_pass"
+#      prompt: "Please set/change the user's password"
+#      private: yes
+
+
+  roles:
+    # Install Packages and Dependencies
+    - { role: packages, tags: [ 'packages' ] }
+    # Configure User
+    - { role: users, tags: [ 'configure user' ] }
+    # Configure python
+    - { role: python, tags: [ 'python' ] }
+    # Configure pycharms
+    - { role: pycharms, tags: [ 'configure pycharms' ] }
+    # Configure NTP
+    - { role: ntp, tags: [ 'ntp' ] }
+
+    # Configure XFCE
+    # - { role: XFCE4, tags: [ 'configure XFCE4' ] }
+    # Misc desktop settings (lock screen, screensaver, user dirs)
+    # - { role: desktop_settings, tags: [ 'desktop manager' ] }
+    # Install Themes
+    # - { role: themes, tags: [ 'configure themes' ] }
+    # Configure Terminals
+    - { role: terminals, tags: [ 'configure terminals' ] }
+    # Configure Third Party Software
+    - { role: add_packages, tags: [ 'configure additional packages' ] }
+    # Configure VMWare
+    # - { role: vmware, tags: [ 'configure vmware' ] }
+    # Cleanup/Delete Files
+    # - { role: cleanup, tags: [ 'remove extra files' ] }
+
+#  tasks:
+#    - debug:
+#        msg:
+#         - "Ensure you copy off the user's private SSH key to maintain access to the server"
+
+######NOTES
+# ADD WHATSAPP
+# https://www.thefanclub.co.za/sites/all/modules/pubdlcnt/pubdlcnt.php?file=https://www.thefanclub.co.za/sites/default/files/public/downloads/whatsapp-webapp_1.0_all.deb&nid=200
+# dpkg -i whatsapp-webapp_1.0_all.deb

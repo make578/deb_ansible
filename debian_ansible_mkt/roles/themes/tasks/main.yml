@@ -1,0 +1,333 @@
+---
+- name: Install Packages
+  apt: 
+    pkg:
+      - conky
+      - libev-dev
+      - libxcb-composite0
+      - libxcb-composite0-dev
+      - libxcb-xinerama0
+      - libxcb-randr0
+      - libxcb-xinerama0-dev
+      - libxcb-xkb-dev
+      - libxcb-image0-dev
+      - libxcb-util-dev
+      - libxkbcommon-x11-dev
+      - libjpeg-turbo8-dev
+      - libpam0g-dev
+      - libcairo-dev
+      - imagemagick
+      - x11-xserver-utils
+    state: present
+    update_cache: yes
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+- name: Add support for libxcb-xrm
+  apt_repository: repo='ppa:aguignard/ppa' state=present
+
+- name: Install Packages
+  apt: 
+    pkg:
+      - libxcb-xrm-dev
+    state: present
+    update_cache: yes
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+- name: Create Themes directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path: /home/{{ username }}/{{ item }}
+    state: directory
+  with_items:
+    - .themes
+    - .icons
+
+# BAD URLS
+#- name: Download themes
+#  become: yes
+#  become_user: "{{ username }}"
+#  get_url:
+#    url: '{{ item.url }}'
+#    dest: '{{ item.dest }}'
+#  with_items:
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1461767736/s/85c2ecac486f8ae236119ca85fff6f7f/t/1540912603/u//90145-axiom.tar.gz', dest: '/tmp/90145-axiom.tar.gz'}
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1538447819/s/38f6707568c550cab4ea922f709832a0/t/1540914810/u//Flat-Remix_1.58r1.tar.xz', dest: '/tmp/Flat-Remix_1.58r1.tar.xz'}
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1538447816/s/38f6707568c550cab4ea922f709832a0/t/1540914810/u//Flat-Remix-Dark_1.58r1.tar.xz', dest: '/tmp/Flat-Remix-Dark_1.58r1.tar.xz'}
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1538447813/s/38f6707568c550cab4ea922f709832a0/t/1540914810/u//Flat-Remix-Light_1.58r1.tar.xz', dest: '/tmp/Flat-Remix-Light_1.58r1.tar.xz'}
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1532934590/s/8a14f705fdedf067d7e1ba2ec8d79856/t/1540914809/u//la-capitaine-icon-theme-0.6.0.tar.gz', dest: '/tmp/la-capitaine-icon-theme-0.6.0.tar.gz'}
+##    - { url: '', dest: ''}
+
+- name: Copy over axiom theme - Backup
+  copy:
+    src: 90145-axiom.tar.gz
+    dest: /tmp/90145-axiom.tar.gz
+
+- name: Clone Flat-Remix repo
+  become: yes
+  become_user: "{{ username }}"
+  git: 
+    repo: https://github.com/daniruiz/flat-remix
+    dest: /tmp/flat-remix/
+    force: yes
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+- name: Extract themes and icons
+  become: yes
+  become_user: "{{ username }}"
+  unarchive:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  with_items:
+    - { src: '/tmp/90145-axiom.tar.gz', dest: '/home/{{ username }}/.themes' }
+
+# Copying takes a long time
+#- name: Copy over Flat-Remix Icons
+#  become: yes
+#  become_user: "{{ username }}"
+#  copy:
+#    src: /tmp/flat-remix/{{ item }}
+#    dest: /home/{{ username }}/.icons/
+#  with_items:
+#    - Flat-Remix
+#    - Flat-Remix-Light
+#    - Flat-Remix-Dark
+
+- name: Move over Flat-Remix Icons
+  become: yes
+  become_user: "{{ username }}"
+  shell: rsync -a /tmp/flat-remix/{{ item }}/ /home/joseph/.icons/{{ item }}
+  with_items:
+    - Flat-Remix
+    - Flat-Remix-Light
+    - Flat-Remix-Dark
+
+- name: Clone la-capitaine Icon
+  become: yes
+  become_user: "{{ username }}"
+  git: 
+    repo: https://github.com/keeferrourke/la-capitaine-icon-theme.git
+    dest: /home/{{ username }}/.icons/la-capitaine
+    force: yes
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+#- name: Enable Theme
+#  become: yes
+#  become_user: "{{ username }}"
+#  command: "{{ item }}"
+#  with_items:
+#  - xfconf-query -n -c xsettings -p /Net/ThemeName -s "axiomd"
+#  - xfconf-query -n -c xsettings -p /Net/IconThemeName -s "Flat-Remix"
+#  - gtk-update-icon-cache "/home/{{ username }}/.icons/Flat-Remix"
+#  when: desktop == "XFCE"
+#  ignore_errors: yes
+
+- name: Create Wallpaper directory
+  file:
+    path: /usr/share/wallpapers/
+    state: directory
+    mode: 0777
+
+- name: Copy over wallpapers
+  copy:
+    src: wallpapers.tar.gz
+    dest: /tmp/wallpapers.tar.gz
+
+# Wallpapers
+- name: Extract wallpapers
+  unarchive:
+    src: /tmp/wallpapers.tar.gz
+    dest: /usr/share/wallpapers/ 
+    mode: 0766
+
+# Links not working
+#- name: Download wallpapers
+#  get_url:
+#    url: '{{ item.url }}'
+#    dest: '{{ item.dest }}'
+#  with_items:
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1518900914/s/f85e01dfc81f5e2edfed1174710b5e5a/t/1540870740/u//grille xfce FHD 1920x1080.png', dest: '/usr/share/wallpapers/grillexfceHD.png' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540860607/s/3a72d78c0bfd481e738cc9e41cdc8532/t/1540870694/u//Iceland Lake Northern Lights HD.jpg', dest: '/usr/share/wallpapers/IcelandLakeNorthernLightsHD.jpg' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540860976/s/b4226e1a7c134822af9db4cc57a0e2c7/t/1540871018/u//Black Sand Beach HD.jpg', dest: '/usr/share/wallpapers/BlackSandBeachHD.jpg' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540860065/s/d5a50b6a18a255a5a7d8579e76467716/t/1540871118/u//Milkyway In A Fountain HD.jpg', dest: '/usr/share/wallpapers/MilkywayInAFountainHD.jpg' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540859498/s/8b0ff9c216f2787495eb5781ed295fc7/t/1540871149/u//Milky Way Galaxy HD.jpg', dest: '/usr/share/wallpapers/MilkyWayGalaxyHD.jpg' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540824629/s/783a60c0ed2c830d4741012917ec791d/t/1540871179/u//Pond 4K.jpg', dest: '/usr/share/wallpapers/Pond4k.jpg' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540824547/s/9b26f9970628e6adb89b6ba7dee43fc3/t/1540871204/u//A Quick Long Stop On The Way Home 4K.jpg', dest: '/usr/share/wallpapers/QuickLongStopOnTheWayHome_4K.jpg' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540861319/s/834ec108ad1054eaddc6efb3b2565313/t/1540871253/u//13.jpg', dest: '/usr/share/wallpapers/13.png' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540861475/s/108321db91ebd83b594bf9b00022d751/t/1540871298/u//14.jpg', dest: '/usr/share/wallpapers/14.png' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1540762611/s/9f6481b65a6a8c4d354aa68aeb1df7c7/t/1540871382/u//nights aurora 4k.jpg', dest: '/usr/share/wallpapers/nights_aurora_4k.jpg' }
+#    - { url: 'https://dl.opendesktop.org/api/files/download/id/1537553764/s/11119f1a9f0f84d7b398cf028ee1398f/t/1540871402/u//bright aurora 4k.jpg', dest: '/usr/share/wallpapers/bright_aurora_4k.jpg' }
+#  ignore_errors: yes
+
+#- file:
+#    src: /usr/share/desktop-base/kali-theme/wallpaper/contents/images/1920x1080.svg
+#    dest: /usr/share/wallpapers/kali_default2.0-1920x1080.jpg
+#    state: link
+
+- name: Create local bin directory
+  file:
+    path: /usr/local/bin/
+    state: directory
+    recurse: yes
+
+- name: Random wallpaper script
+  template:
+    src: rand-wallpaper.j2
+    dest: /usr/local/bin/rand-wallpaper
+    mode: 0755
+
+- name: Create autostart directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path: /home/{{ username }}/.config/autostart/
+    state: directory
+    recurse: yes
+
+- name: Random wallpaper script autostart
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: wallpaper.desktop.j2
+    dest: /home/{{ username }}/.config/autostart/wallpaper.desktop
+
+
+# Configure File Browsers
+- name: Create file browser directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path: /home/{{ username }}/.config/gtk-2.0/
+    state: directory
+    recurse: yes
+
+- name: File Browser Config
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: gtkfilechooser.ini.j2
+    dest: /home/{{ username }}/.config/gtk-2.0/gtkfilechooser.ini
+
+#- name: Create Folder Bookmarks
+#  become: yes
+#  become_user: "{{ username }}"
+#  template:
+#    src: gtk-bookmarks.j2
+#    dest: /home/{{ username }}/.gtk-bookmarks
+
+- name: Create file browser directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path: /home/{{ username }}/.config/Thunar/
+    state: directory
+    recurse: yes
+
+- name: File Browser Config
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: thunarrc.j2
+    dest: /home/{{ username }}/.config/Thunar/thunarrc
+
+
+# Configure Conky
+- name: Conky Config
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: conkyrc.j2
+    dest: /home/{{ username }}/.conkyrc
+
+- name: Create directory for user binaries
+  file:
+    path: /usr/local/bin/
+    state: directory
+    recurse: yes
+
+- name: Conky Start
+  template:
+    src: start-conky.j2
+    dest: /usr/local/bin/start-conky
+    mode: 0755
+
+- name: Create autostart directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path: /home/{{ username }}/.config/autostart/
+    state: directory
+    recurse: yes
+
+# Disabled Conky Autostart
+#- name: Conky Start
+#  become: yes
+#  become_user: "{{ username }}"
+#  template:
+#    src: conkyscript.desktop.j2
+#    dest: /home/{{ username }}/.config/autostart/conkyscript.desktop
+
+- name: Clone i3lock-color repo
+  git: 
+    repo: https://github.com/PandorasFox/i3lock-color
+    dest: /opt/i3lock-color
+    force: yes
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+
+- shell: chdir=/opt/i3lock-color/ {{ item }}
+  with_items: 
+    - autoreconf -i 
+    - ./configure 
+    - make
+
+- file:
+    src: /opt/i3lock-color/x86_64-pc-linux-gnu/i3lock
+    dest: /usr/bin/i3lock
+    state: link
+
+- name: Clone i3lock-color repo
+  git: 
+    repo: https://github.com/pavanjadhaw/betterlockscreen
+    dest: /opt/betterlockscreen
+    force: yes
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+- file:
+    src: /opt/betterlockscreen/betterlockscreen 
+    dest: /usr/bin/betterlockscreen
+    state: link
+
+- shell: /usr/bin/betterlockscreen -u /usr/share/wallpapers/wallpapers/
+
+- name: Update Lockscreen Utility
+  template:
+    src: xflock4.j2
+    dest: /usr/bin/xflock4
+
+
+- name: Cleanup
+  file:
+    path: /tmp/{{ item }}
+    state: absent
+  with_items:
+   - 90145-axiom.tar.gz
+#   - wallpapers.tar.gz

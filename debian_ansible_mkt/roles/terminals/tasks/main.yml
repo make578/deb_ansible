@@ -1,0 +1,143 @@
+---
+- name: Install Packages
+  apt: 
+    pkg:
+      - terminator
+      - zsh
+      - git
+      - vim
+      - git
+      - grc
+      - bash-completion
+      - git-core
+      - asciinema
+      - shutter
+      - byobu
+      - mosh
+    state: present
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+- name: Update bash settings
+  template:
+    src: bash.bashrc.j2
+    dest: /etc/bash.bashrc
+
+#- name: Update bash
+#  command: source "/etc/bash.bashrc" || source ~/.zshrc
+
+
+- name: Update bash settings
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: bashrc.j2
+    dest: /home/{{ username }}/.bashrc
+
+#- name: Update bash
+#  command: source "/root/.bashrc" || source ~/.zshrc
+
+#- name: Update bash aliases
+#  become: yes
+#  become_user: "{{ username }}"
+#  template:
+#    src: bash_aliases.j2
+#    dest: /home/{{ username }}/.bash_aliases
+
+#- name: Update bash aliases
+#  command: source "/root/.bash_aliases" || source ~/.zshrc
+
+- name: Create terminator directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path: /home/{{ username }}/.config/terminator/
+    state: directory
+    recurse: yes
+
+- name: Update bash aliases
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: terminator_config.j2
+    dest: /home/{{ username }}/.config/terminator/config
+
+- name: Clone oh-my-zsh repo
+  become: yes
+  become_user: "{{ username }}"
+  git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest=/home/{{ username }}/.oh-my-zsh
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+
+- name: Update ZSH settings
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: zshrc.j2
+    dest: /home/{{ username }}/.zshrc
+
+- name: Set zsh as default shell
+  user: name={{ username }} shell=/bin/zsh
+
+#- name: Update vim settings
+#  template:
+#    src: vimrc.j2
+#    dest: /etc/vim/vimrc
+
+- name: Update custom bash search
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: inputrc.j2
+    dest: /home/{{ username }}/.inputrc
+
+- name: Update git
+  become: yes
+  become_user: "{{ username }}"
+  command: "{{ item }}"
+  with_items:
+  - git config --global core.editor "vim"
+  - git config --global merge.tool vimdiff
+  - git config --global merge.conflictstyle diff3
+  - git config --global mergetool.prompt false
+  - git config --global push.default simple
+
+# Install (Bottle) python package.
+- name: Install tmux2html
+  pip:
+    name: tmux2html
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+
+- name: Create terminals directory
+  file:
+    path: /opt/terminals/
+    state: directory
+    recurse: yes
+
+##### Install ashttp
+- name: Clone oh-my-zsh repo
+  git: repo=https://github.com/JulienPalard/ashttp.git dest=/opt/terminals/ashttp-git/
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+
+##### Install gotty
+- name: Clone oh-my-zsh repo
+  git: repo=https://github.com/yudai/gotty.git dest=/opt/terminals/gotty-git/
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+
