@@ -1,3 +1,9 @@
+## GIT
+alias g='git'
+
+## Sublime
+alias sublime='/opt/sublime_text/sublime_text'
+
 ## grc diff alias
 alias diff='/usr/bin/grc /usr/bin/diff'
 
@@ -119,20 +125,6 @@ alias ll="ls -l --block-size=1 --color=auto"
 ## nmap
 alias nmap="nmap --reason --open --stats-every 3m --max-retries 1 --max-scan-delay 20 --defeat-rst-ratelimit"
 
-## aircrack-ng
-alias aircrack-ng="aircrack-ng -z"
-
-## airodump-ng 
-alias airodump-ng="airodump-ng --manufacturer --wps --uptime"
-
-## metasploit
-alias msfc="systemctl start postgresql; msfdb start; msfconsole -q \"\$@\""
-alias msfconsole="systemctl start postgresql; msfdb start; msfconsole \"\$@\""
-
-## mana-toolkit
-alias mana-toolkit-start="a2ensite 000-mana-toolkit;a2dissite 000-default; systemctl restart apache2"
-alias mana-toolkit-stop="a2dissite 000-mana-toolkit; a2ensite 000-default; systemctl restart apache2"
-
 ## ssh
 alias ssh-start="systemctl restart ssh"
 alias ssh-stop="systemctl stop ssh"
@@ -163,13 +155,6 @@ alias smbroot="cd /var/samba/"
 
 ## vmware
 alias vmroot="cd /mnt/hgfs/"
-
-## edb
-alias edb="cd /usr/share/exploitdb/platforms/"
-alias edbroot="cd /usr/share/exploitdb/platforms/"
-
-## wordlist
-alias wordlists="cd /usr/share/wordlists/"
 
 alias msfvenom-list-all='cat ~/.msf4/msfvenom/all'
 alias msfvenom-list-nops='cat ~/.msf4/msfvenom/nops'
@@ -202,19 +187,3 @@ alias dns3="dig +short @208.67.220.220 which.opendns.com txt"
 
 ### Network Services
 alias listen="netstat -antp | grep LISTEN"
-
-### HDD size
-alias hogs="for i in G M K; do du -ah | grep [0-9]$i | sort -nr -k 1; done | head -n 11"
-
-### Listing
-alias ll="ls -l --block-size=1 --color=auto"
-
-### Bloodhound
-alias bloodhound="neo4j console & bloodhound"
-
-### Empire C2
-alias empire="cd /opt/C2/empire-git/ && ./empire"
-
-### OpenVAS
-alias openvas="openvas-stop; openvas-start; sleep 3s; xdg-open https://127.0.0.1:9392/ >/dev/null 2>&1"
-
