@@ -25,6 +25,8 @@
     # Changing the desktop manager has no warranties, Not all environments have been tested
     desktop: "MATE" # (Gnome, XFCE, KDE, KDE-Plasma, LXDE, Cinnamon, MATE)
     username: "{{ user | default('px') }}"
+    fullname: "{{ displayname | default('Make578') }}"
+    mailaddress: "{{ mailadd | default('make578@gmail.com') }}"
     vm_key: "{{ vmware_key | default('00000-00000-00000-00000-00000') }}"
 
 #  vars_prompt:
@@ -41,7 +43,7 @@
     # Configure python
     - { role: python, tags: [ 'python' ] }
     # Configure pycharms
-    - { role: pycharms, tags: [ 'configure pycharms' ] }
+    # - { role: pycharms, tags: [ 'configure pycharms' ] }
     # Configure NTP
     - { role: ntp, tags: [ 'ntp' ] }
 

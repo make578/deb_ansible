@@ -81,13 +81,20 @@
     src: zshrc.j2
     dest: /home/{{ username }}/.zshrc
 
+- name: Update gitconfig settings
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: gitconfig.j2
+    dest: /home/{{ username }}/.gitconfig
+
 - name: Set zsh as default shell
   user: name={{ username }} shell=/bin/zsh
 
 #- name: Update vim settings
 #  template:
 #    src: vimrc.j2
-#    dest: /etc/vim/vimrc
+#    dest: /etc/vim/vimrc.local
 
 - name: Update custom bash search
   become: yes
@@ -106,6 +113,8 @@
   - git config --global merge.conflictstyle diff3
   - git config --global mergetool.prompt false
   - git config --global push.default simple
+  - git config --global user.email "{{ mailaddress }}"                        │
+  - git config --global user.name "{{ fullname }}"  
 
 # Install (Bottle) python package.
 - name: Install tmux2html
