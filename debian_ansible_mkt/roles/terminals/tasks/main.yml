@@ -81,6 +81,13 @@
     src: zshrc.j2
     dest: /home/{{ username }}/.zshrc
 
+- name: Update tmux settings
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: tmux.conf.j2
+    dest: /home/{{ username }}/.tmux.conf
+
 - name: Update gitconfig settings
   become: yes
   become_user: "{{ username }}"
