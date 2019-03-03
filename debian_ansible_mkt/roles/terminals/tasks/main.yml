@@ -91,10 +91,22 @@
 - name: Set zsh as default shell
   user: name={{ username }} shell=/bin/zsh
 
-#- name: Update vim settings
-#  template:
-#    src: vimrc.j2
-#    dest: /etc/vim/vimrc.local
+
+- name: ensure vimrc file exists
+  copy:
+    content: ""
+    dest: /home/{{ username }}/.vimrc
+    force: no
+    group: "{{ username }}"
+    owner: "{{ username }}"
+    mode: 0555
+
+- name: Update vim settings
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: vimrc.j2
+    dest: /home/{{ username }}/.vimrc
 
 - name: Update custom bash search
   become: yes
