@@ -58,3 +58,8 @@
   become: yes
   command: sysctl --system
   register: sysctl_system
+
+#- name: lxc-usernet
+#  become: yes
+#  command: echo "{{ username }} veth lxcbr0 10" | tee -i /etc/lxc/lxc-usernet
+#  register: lxc_usernet
