@@ -1,0 +1,60 @@
+---
+- name: Update the apt package index
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Install LXC package
+  become: yes
+  apt:
+    name: "{{ packagesdep }}"
+    force_apt_get: yes
+    state: latest
+    update_cache: yes
+  vars:
+    packagesdep:
+    - lxc
+
+- name: Update /etc/default/lxc-net
+  become: yes
+  template:
+    src: lxc-net.j2
+    dest: /etc/default/lxc-net
+
+- name: Update /etc/lxc/default.conf
+  become: yes
+  template:
+    src: default.conf.j2
+    dest: /etc/lxc/default.conf
+
+- name: Restart service lxc-net
+  service:
+    name: lxc-net
+    state: restarted
+
+- name: Creates directory
+  become: yes
+  become_user: "{{ username }}"
+  file:
+    path:  /home/{{ username }}/.config/lxc
+    state: directory
+    
+- name: Update user default.conf
+  become: yes
+  template:
+    src: default.user.conf.j2
+    dest: /home/{{ username }}/.config/lxc/default.conf
+
+- name: Update sysctl for lxc
+  become: yes
+  template:
+    src: 80-lxc-userns.conf.j2
+    dest: /etc/sysctl.d/80-lxc-userns.conf
+
+- name: sysctl system
+  become: yes
+  command: sysctl --system
+  register: sysctl_system
