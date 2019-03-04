@@ -1,0 +1,36 @@
+---
+- name: Update the apt package index
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Add Apt signing key from official virtualbox repo
+  apt_key:
+    url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+    state: present
+
+- name: Add Apt signing key from official virtualbox repo
+  apt_key:
+    url: https://www.virtualbox.org/download/oracle_vbox.asc
+    state: present
+
+- name: add virtualbox official repository for Debian Stretch
+  apt_repository:
+    repo: deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian stretch contrib
+    state: present
+
+- name: Index new repo into the cache
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: actually install virtualbox
+  apt:
+    name: "virtualbox-6.0"
+    state: latest

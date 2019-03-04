@@ -1,0 +1,31 @@
+---
+- name: Update the apt package index
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Add Apt signing key from official resilio repo
+  apt_key:
+    url: http://linux-packages.resilio.com/resilio-sync/key.asc
+    state: present
+
+- name: add resilio official repository for Debian Stretch
+  apt_repository:
+    repo: deb [arch=amd64] deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free
+    state: present
+
+- name: Index new repo into the cache
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: actually install resilio
+  apt:
+    name: "resilio-sync"
+    state: latest

@@ -59,6 +59,10 @@
     - { role: add_packages, tags: [ 'configure additional packages' ] }
     # Configure VMWare
     - { role: docker, tags: [ 'configure docker' ] }
+    # Configure VirtualBox
+    - { role: virtualbox, tags: [ 'configure virtualbox' ] }
+    # Configure Resilio
+    #- { role: resilio, tags: [ 'configure resilio' ] }
     # Configure VMWare
     # - { role: vmware, tags: [ 'configure vmware' ] }
     # Cleanup/Delete Files
