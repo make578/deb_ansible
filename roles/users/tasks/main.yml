@@ -38,3 +38,16 @@
     src: shutter.desktop.j2
     dest: /home/{{ username }}/.config/autostart/shutter.desktop
 
+- name: Add Terminator Panel Shortcut
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: terminator.desktop.j2
+    dest: /home/{{ username }}/.config/mate/panel2.d/default/launchers/terminator.desktop
+
+- name: Add Firefox Panel Shortcut
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: firefox-esr.desktop.j2
+    dest: /home/{{ username }}/.config/mate/panel2.d/default/launchers/firefox-esr.desktop
