@@ -21,7 +21,8 @@
       - evolution-ews
       - shutter
       - htop
-      - thunderbird  
+      - thunderbird
+      - wireshark
     state: present
 
 - name: Install Debian Specific Packages
