@@ -57,7 +57,7 @@
     state: directory
     recurse: yes
 
-- name: Update bash aliases
+- name: Update terminator config
   become: yes
   become_user: "{{ username }}"
   template:
