@@ -1,0 +1,34 @@
+---
+- name: Install Packages
+  apt: 
+    pkg:
+      - vim
+      - git
+      - git-core
+      - meld
+    state: present
+  register: results
+  until: results is success
+  retries: 10
+  delay: 3
+
+- name: Update gitconfig settings
+  become: yes
+  become_user: "{{ username }}"
+  template:
+    src: gitconfig.j2
+    dest: /home/{{ username }}/.gitconfig
+
+- name: Update git
+  become: yes
+  become_user: "{{ username }}"
+  command: "{{ item }}"
+  with_items:
+  - git config --global core.editor "vim"
+  - git config --global merge.tool meld
+  - git config --global diff.tool meld
+  - git config --global merge.conflictstyle diff3
+  - git config --global mergetool.prompt false
+  - git config --global push.default simple
+  - git config --global user.email "{{ mailaddress }}"                        │
+  - git config --global user.name "{{ fullname }}"  

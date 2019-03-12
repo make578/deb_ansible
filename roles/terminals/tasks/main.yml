@@ -4,12 +4,9 @@
     pkg:
       - terminator
       - zsh
-      - git
       - vim
-      - git
       - grc
       - bash-completion
-      - git-core
       - asciinema
       - shutter
       - byobu
@@ -88,13 +85,6 @@
     src: tmux.conf.j2
     dest: /home/{{ username }}/.tmux.conf
 
-- name: Update gitconfig settings
-  become: yes
-  become_user: "{{ username }}"
-  template:
-    src: gitconfig.j2
-    dest: /home/{{ username }}/.gitconfig
-
 - name: Set zsh as default shell
   user: name={{ username }} shell=/bin/zsh
 
@@ -111,19 +101,6 @@
   template:
     src: inputrc.j2
     dest: /home/{{ username }}/.inputrc
-
-- name: Update git
-  become: yes
-  become_user: "{{ username }}"
-  command: "{{ item }}"
-  with_items:
-  - git config --global core.editor "vim"
-  - git config --global merge.tool vimdiff
-  - git config --global merge.conflictstyle diff3
-  - git config --global mergetool.prompt false
-  - git config --global push.default simple
-  - git config --global user.email "{{ mailaddress }}"                        │
-  - git config --global user.name "{{ fullname }}"  
 
 # Install (Bottle) python package.
 - name: Install tmux2html

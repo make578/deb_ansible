@@ -55,6 +55,8 @@
     # - { role: themes, tags: [ 'configure themes' ] }
     # Configure Terminals
     - { role: terminals, tags: [ 'configure terminals' ] }
+    # Configure git
+    - { role: git, tags: [ 'configure git' ] }
     # Configure Third Party Software
     - { role: add_packages, tags: [ 'configure additional packages' ] }
     # Configure VMWare

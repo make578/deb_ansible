@@ -1,0 +1,18 @@
+set number
+set expandtab
+set smarttab
+set softtabstop=4
+set shiftwidth=4
+set foldmethod=marker
+nnoremap <space> za
+set hlsearch
+set laststatus=2
+filetype on
+filetype plugin on
+syntax enable
+set grepprg=grep\ -nH\ $*
+set wildmenu
+set wildmode=list:longest,full
+:nmap <F8> :set invnumber<CR>
+set pastetoggle=<F9>
+:command Q q

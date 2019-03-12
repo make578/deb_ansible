@@ -99,30 +99,30 @@
     mode: 0755
 
 # Install Chrome
-- name: Download Chrome
-  become: yes
-  become_user: "{{ username }}"
-  get_url: 
-    url="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-    dest="/home/{{ username }}/Downloads/google-chrome-stable_current_amd64.deb"
+#- name: Download Chrome
+#  become: yes
+#  become_user: "{{ username }}"
+#  get_url: 
+#    url="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+#    dest="/home/{{ username }}/Downloads/google-chrome-stable_current_amd64.deb"
 
-- name: Install Chrome
-  become: yes
-  become_user: root
-  apt: deb="/home/{{ username }}/Downloads/google-chrome-stable_current_amd64.deb"
+#- name: Install Chrome
+#  become: yes
+#  become_user: root
+#  apt: deb="/home/{{ username }}/Downloads/google-chrome-stable_current_amd64.deb"
 
 # Install Dropbox
-- name: Download Dropbox
-  become: yes
-  become_user: "{{ username }}"
-  get_url: 
-    url="https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
-    dest="/home/{{ username }}/Downloads/dropbox.deb"
+#- name: Download Dropbox
+#  become: yes
+#  become_user: "{{ username }}"
+#  get_url: 
+#    url="https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2015.10.28_amd64.deb"
+#    dest="/home/{{ username }}/Downloads/dropbox.deb"
 
-- name: Install Dropbox
-  become: yes
-  become_user: root
-  apt: deb="/home/{{ username }}/Downloads/dropbox.deb"
+#- name: Install Dropbox
+#  become: yes
+#  become_user: root
+#  apt: deb="/home/{{ username }}/Downloads/dropbox.deb"
 
 # Install Teamviewer
 - name: Download Teamviewer
