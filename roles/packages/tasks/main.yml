@@ -27,9 +27,6 @@
   become_user: root
   apt:
     pkg:
-#     - virtualbox-guest-x11
-#     - open-vm-tools
-#     - open-vm-tools-desktop
       - make
       - gcc
       - unzip
@@ -61,7 +58,6 @@
       - pavucontrol
       - apt-transport-https 
       - libcurl3
-      - git
       - rsync
     state: present
     install_recommends: yes
@@ -103,20 +99,6 @@
   until: apt_res is success
   retries: 10
   delay: 3
-
-#- shell: uname -r
-#  register: kernel
-#
-#- name: Install Linux Headers
-#  become: yes
-#  become_user: root
-#  command: apt -y -qq install linux-headers-{{ item }}
-#  with_items: "{{ kernel.stdout_lines }}"
-#  register: apt_res
-#  until: apt_res is success
-#  retries: 10
-#  delay: 3
-#  ignore_errors: yes
 
 - name: Remove mutt
   become: yes
